@@ -1,25 +1,33 @@
 """
-This module contains the custom nnUNetTrainer classes with early stopping and oversampling support.
+Custom nnUNetTrainer classes with Early Stopping, Oversampling, and flexible configurations.
 """
+from typing import Tuple, Dict, Optional, cast
 from os.path import join
-from typing import Optional, Dict, cast, Tuple
 import torch
 from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
+from nnunetv2.training.dataloading.data_loader_2d import nnUNetDataLoader2D
 from nnunetv2.training.dataloading.data_loader_3d import MinorityClassOversampling_nnUNetDataLoader3D
 
 
 class EarlyStopping:
     """
     EarlyStopping handler to stop training if no improvement is observed after a given number of epochs.
+
+    Attributes:
+        patience (int): Number of epochs to wait for improvement before stopping.
+        min_delta (float): Minimum change to qualify as an improvement.
+        best_score (Optional[float]): Best score observed so far.
+        counter (int): Number of epochs since the last improvement.
+        logger: Logger for logging messages.
     """
 
     def __init__(self, patience: int, logger, min_delta: float = 0.0):
         """
-        Initialize the EarlyStopping handler.
+        Initializes the EarlyStopping handler.
 
         Args:
             patience (int): Number of epochs to wait for improvement before stopping.
-            logger: Logger object to log messages.
+            logger: Logger for logging messages.
             min_delta (float): Minimum change to qualify as an improvement.
         """
         if patience < 1:
@@ -34,10 +42,10 @@ class EarlyStopping:
 
     def stop_training(self, current_score: float) -> bool:
         """
-        Determine whether to stop training based on the current score.
+        Determines whether training should be stopped based on the current score.
 
         Args:
-            current_score (float): The current score to compare against the best score.
+            current_score (float): The current score to evaluate.
 
         Returns:
             bool: True if training should be stopped, False otherwise.
@@ -58,19 +66,19 @@ class EarlyStopping:
 
     def state_dict(self) -> Dict[str, float]:
         """
-        Save state of the early stopping.
+        Returns the state of the EarlyStopping handler.
 
         Returns:
-            Dict[str, float]: Dictionary containing the state of early stopping.
+            Dict[str, float]: The state dictionary containing the counter and best score.
         """
         return {"counter": self.counter, "best_score": cast(float, self.best_score)}
 
     def load_state_dict(self, state_dict: Dict[str, float]):
         """
-        Load state of the early stopping.
+        Loads the state of the EarlyStopping handler from a state dictionary.
 
         Args:
-            state_dict (Dict[str, float]): Dictionary containing the state to load.
+            state_dict (Dict[str, float]): The state dictionary containing the counter and best score.
         """
         self.counter = state_dict["counter"]
         self.best_score = state_dict["best_score"]
@@ -79,6 +87,11 @@ class EarlyStopping:
 class nnUNetTrainerBase(nnUNetTrainer):
     """
     Base Trainer with configurable hyperparameters and logging.
+
+    Attributes:
+        initial_lr (float): Initial learning rate.
+        weight_decay (float): Weight decay for the optimizer.
+        oversample_foreground_percent (float): Percentage of oversampling for foreground pixels.
     """
 
     def __init__(
@@ -94,18 +107,18 @@ class nnUNetTrainerBase(nnUNetTrainer):
         oversample_foreground_percent: float = 0.5,
     ):
         """
-        Initialize the base trainer.
+        Initializes the nnUNetTrainerBase.
 
         Args:
-            plans (dict): Training plans.
+            plans (dict): Plans for the training.
             configuration (str): Configuration name.
             fold (int): Fold number.
             dataset_json (dict): Dataset JSON.
             unpack_dataset (bool): Whether to unpack the dataset.
             device (torch.device): Device to use for training.
             initial_lr (float): Initial learning rate.
-            weight_decay (float): Weight decay.
-            oversample_foreground_percent (float): Percentage of foreground oversampling.
+            weight_decay (float): Weight decay for the optimizer.
+            oversample_foreground_percent (float): Percentage of oversampling for foreground pixels.
         """
         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
         self.initial_lr = initial_lr
@@ -118,11 +131,14 @@ class nnUNetTrainerBase(nnUNetTrainer):
 class nnUNetTrainerWithEarlyStopping(nnUNetTrainerBase):
     """
     Trainer with Early Stopping support.
+
+    Attributes:
+        early_stopping (EarlyStopping): EarlyStopping handler.
     """
 
     def __init__(self, *args, patience: int = 10, min_delta: float = 0.0, **kwargs):
         """
-        Initialize the trainer with early stopping.
+        Initializes the nnUNetTrainerWithEarlyStopping.
 
         Args:
             patience (int): Number of epochs to wait for improvement before stopping.
@@ -136,7 +152,7 @@ class nnUNetTrainerWithEarlyStopping(nnUNetTrainerBase):
 
     def run_training(self):
         """
-        Run the training process with early stopping.
+        Runs the training process with early stopping.
         """
         self.on_train_start()
         for epoch in range(self.current_epoch, self.num_epochs):
@@ -169,35 +185,66 @@ class nnUNetTrainerWithEarlyStopping(nnUNetTrainerBase):
 
 class nnUNetTrainerOversampling(nnUNetTrainerWithEarlyStopping):
     """
-    Trainer with Early Stopping and customizable oversampling percentages.
+    Trainer with configurable oversampling for foreground pixels.
+
+    Attributes:
+        oversample_foreground_percent (float): Percentage of oversampling for foreground pixels.
     """
 
-    def __init__(self, *args, oversample_foreground_percent: float = 1.0, **kwargs):
+    def __init__(self, *args, oversample_foreground_percent: float = 0.5, **kwargs):
         """
-        Initialize the trainer with oversampling.
+        Initializes the nnUNetTrainerOversampling.
 
         Args:
-            oversample_foreground_percent (float): Percentage of foreground oversampling.
+            oversample_foreground_percent (float): Percentage of oversampling for foreground pixels.
         """
         super().__init__(*args, **kwargs)
         self.oversample_foreground_percent = oversample_foreground_percent
-        self.logger.info(f"Final oversample percent: {self.oversample_foreground_percent}")
+        self.logger.info(f"Oversample foreground percent set to {self.oversample_foreground_percent * 100}%.")
 
-
-class nnUNetTrainerLowLROversampling(nnUNetTrainerOversampling):
-    """
-    Trainer with Early Stopping, low learning rate, and oversampling.
-    """
-
-    def __init__(self, *args, initial_lr: float = 5e-4, weight_decay: float = 1e-4, **kwargs):
+    def get_plain_dataloaders(self, initial_patch_size: Tuple[int, ...], dim: int):
         """
-        Initialize the trainer with low learning rate and oversampling.
+        Gets the plain dataloaders for training and validation.
 
         Args:
-            initial_lr (float): Initial learning rate.
-            weight_decay (float): Weight decay.
+            initial_patch_size (Tuple[int, ...]): Initial patch size.
+            dim (int): Dimension of the data (2D or 3D).
+
+        Returns:
+            Tuple: Training and validation dataloaders.
         """
-        super().__init__(*args, **kwargs)
-        self.initial_lr = initial_lr
-        self.weight_decay = weight_decay
-        self.logger.info(f"Low LR: {self.initial_lr}, Higher Weight Decay: {self.weight_decay}")
+        dataset_tr, dataset_val = self.get_tr_and_val_datasets()
+
+        if dim == 2:
+            dl_tr = nnUNetDataLoader2D(
+                dataset_tr, self.batch_size, initial_patch_size, self.configuration_manager.patch_size,
+                self.label_manager, oversample_foreground_percent=self.oversample_foreground_percent
+            )
+            dl_val = nnUNetDataLoader2D(
+                dataset_val, self.batch_size, self.configuration_manager.patch_size, self.configuration_manager.patch_size,
+                self.label_manager, oversample_foreground_percent=self.oversample_foreground_percent
+            )
+        else:
+            dl_tr = MinorityClassOversampling_nnUNetDataLoader3D(
+                dataset_tr, self.batch_size, initial_patch_size, self.configuration_manager.patch_size,
+                self.label_manager, oversample_foreground_percent=self.oversample_foreground_percent
+            )
+            dl_val = MinorityClassOversampling_nnUNetDataLoader3D(
+                dataset_val, self.batch_size, self.configuration_manager.patch_size, self.configuration_manager.patch_size,
+                self.label_manager, oversample_foreground_percent=self.oversample_foreground_percent
+            )
+
+        return dl_tr, dl_val
+
+
+class nnUNetTrainerExtremeOversampling(nnUNetTrainerOversampling):
+    """
+    Trainer with extreme oversampling (100% of foreground patches).
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initializes the nnUNetTrainerExtremeOversampling with 100% foreground oversampling.
+        """
+        super().__init__(*args, oversample_foreground_percent=1.0, **kwargs)
+        self.logger.info("Using extreme oversampling (100% foreground) in dataloaders.")

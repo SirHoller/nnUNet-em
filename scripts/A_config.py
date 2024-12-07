@@ -28,7 +28,7 @@ class NNUNetConfig:
     TEST_RESULTS_PATH = ROOT / "nnUNet_test_results"
 
     # Dataset-specific Settings
-    DATASET_NAME = "Dataset001_NewLesions"
+    DATASET_NAME = "Dataset100_NewLesions"
     TERMINATION = ".nii.gz"
     CONFIGURATION = "3d_fullres"
     PLAN = "nnUNetPlans"

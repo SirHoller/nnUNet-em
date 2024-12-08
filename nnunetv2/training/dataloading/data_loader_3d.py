@@ -13,6 +13,7 @@ class nnUNetDataLoader3D(nnUNetDataLoaderBase):
         data_all = np.zeros(self.data_shape, dtype=np.float32)
         seg_all = np.zeros(self.seg_shape, dtype=np.int16)
         case_properties = []
+        print(f"nnUNetDataLoader3D")
 
         for j, i in enumerate(selected_keys):
             # oversampling foreground will improve stability of model training, especially if many patches are empty
@@ -79,8 +80,13 @@ def calculate_class_distribution(dataset):
     """
     all_labels = []
     for case in dataset.keys():
-        label_file = dataset[case]['seg']
-        label_data = torch.from_numpy(np.load(label_file)).flatten()
+        if 'label_file' in dataset[case]:
+            label_file = dataset[case]['label_file']
+            label_data = torch.from_numpy(np.load(label_file)).flatten()
+        else:
+            data_file = dataset[case]['data_file']
+            with np.load(data_file) as data:
+                label_data = torch.from_numpy(data['seg']).flatten()  # Las etiquetas están bajo la clave 'seg'
         all_labels.append(label_data)
     all_labels = torch.cat(all_labels)
     unique, counts = torch.unique(all_labels, return_counts=True)
@@ -93,6 +99,7 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         super().__init__(*args, **kwargs)
         self.dynamic_oversampling = dynamic_oversampling
         self.class_distribution = None
+        self.dataset = self._data.dataset
         if self.dynamic_oversampling:
             self.determine_class_distribution()
 
@@ -119,6 +126,7 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         data_all = np.zeros(self.data_shape, dtype=np.float32)
         seg_all = np.zeros(self.seg_shape, dtype=np.int16)
         case_properties = []
+        print(f"nnUNetDataLoader3DMinorityClass")
 
         # Encuentra la clase menos representada (si oversampling dinámico está activado)
         least_represented_class = None

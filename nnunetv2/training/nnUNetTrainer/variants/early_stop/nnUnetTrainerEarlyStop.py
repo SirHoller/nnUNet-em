@@ -5,13 +5,19 @@ This module contains the custom nnUNetTrainer classes we have used.
 from os.path import join
 from typing import Optional, Dict, Tuple
 
+import numpy as np
+import nibabel as nib
+from threadpoolctl import threadpool_limits
+
+
 import torch
 
 from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
 from nnunetv2.training.nnUNetTrainer.variants.sampling.nnUNetTrainer_probabilisticOversampling import (
     nnUNetTrainer_probabilisticOversampling,
 )
-
+from nnunetv2.training.dataloading.data_loader_2d import nnUNetDataLoader2D
+from nnunetv2.training.dataloading.data_loader_3d import nnUNetDataLoader3D, nnUNetDataLoader3DMinorityClass
 
 class EarlyStopping:
     """EarlyStopping handler to stop training if no improvement after a given number of events."""
@@ -38,7 +44,7 @@ class EarlyStopping:
             if not self.cumulative_delta and new_score > self.best_score:
                 self.best_score = new_score
             self.counter += 1
-            print(f"EarlyStopping: {self.counter} / {self.patience}")
+            self.logger.info(f"EarlyStopping: {self.counter} / {self.patience}")
             return self.counter >= self.patience
         else:  # New best score
             self.best_score = new_score
@@ -80,7 +86,87 @@ class nnUNetTrainerEarlyStopping(nnUNetTrainer):
             if self.early_stopping.stop_training(new_score=self.logger.my_fantastic_logging['ema_fg_dice'][-1]):
                 self.print_to_log_file("EarlyStopping: Stop training")
                 break
-            elif self.early_stopping.counter % 10 == 0:
+            if self.early_stopping.counter % 10 == 0:
                 self.save_checkpoint(join(self.output_folder, "checkpoint_latest.pth"))
         self.on_train_end()
 
+class nnUNetTrainerEarlyStoppingWithOverSampling(nnUNetTrainer_probabilisticOversampling, nnUNetTrainerEarlyStopping):
+    """Variant of the nnU-Net Trainer with early stopping and oversampling."""
+    
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                 unpack_dataset: bool = True, device: torch.device = torch.device('cuda')):
+        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+        self.oversample_foreground_percent = 0.5
+        self.print_to_log_file(f"self.oversample_foreground_percent {self.oversample_foreground_percent}")
+    
+class nnUNetTrainerEarlyStoppingWithOverSampling_033(nnUNetTrainerEarlyStoppingWithOverSampling):
+    """Variant of the nnU-Net Trainer with early stopping and oversampling."""
+    
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                 unpack_dataset: bool = True, device: torch.device = torch.device('cuda')):
+        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+        self.oversample_foreground_percent = 0.33
+        self.print_to_log_file(f"self.oversample_foreground_percent {self.oversample_foreground_percent}")
+
+class nnUNetTrainerEarlyStoppingWithOverSampling_100(nnUNetTrainerEarlyStoppingWithOverSampling):
+    """Variant of the nnU-Net Trainer with early stopping and oversampling."""
+    
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                 unpack_dataset: bool = True, device: torch.device = torch.device('cuda')):
+        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+        self.oversample_foreground_percent = 1.0
+        self.print_to_log_file(f"self.oversample_foreground_percent {self.oversample_foreground_percent}")
+
+def calculate_class_distribution(labels):
+    """
+    Calcula la proporción de cada clase en un conjunto de etiquetas.
+    """
+    unique, counts = torch.unique(labels, return_counts=True)
+    total_voxels = labels.numel()
+    class_distribution = {int(k): v / total_voxels for k, v in zip(unique, counts)}
+    return class_distribution
+
+
+class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainerEarlyStoppingWithOverSampling):
+    """
+    Entrenador de nnU-Net con early stopping y oversampling enfocado en la clase menos representada.
+    """
+
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                 unpack_dataset: bool = True, device: torch.device = torch.device('cuda')):
+        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+
+    def get_plain_dataloaders(self, initial_patch_size: Tuple[int, ...], dim: int):
+        dataset_tr, dataset_val = self.get_tr_and_val_datasets()
+
+        if dim == 2:
+            dl_tr = nnUNetDataLoader2D(dataset_tr,
+                                       self.batch_size,
+                                       initial_patch_size,
+                                       self.configuration_manager.patch_size,
+                                       self.label_manager,
+                                       oversample_foreground_percent=self.oversample_foreground_percent,
+                                       sampling_probabilities=None, pad_sides=None, probabilistic_oversampling=True)
+            dl_val = nnUNetDataLoader2D(dataset_val,
+                                        self.batch_size,
+                                        self.configuration_manager.patch_size,
+                                        self.configuration_manager.patch_size,
+                                        self.label_manager,
+                                        oversample_foreground_percent=self.oversample_foreground_percent,
+                                        sampling_probabilities=None, pad_sides=None, probabilistic_oversampling=True)
+        else:
+            dl_tr = nnUNetDataLoader3DMinorityClass(dataset_tr,
+                                       self.batch_size,
+                                       initial_patch_size,
+                                       self.configuration_manager.patch_size,
+                                       self.label_manager,
+                                       oversample_foreground_percent=self.oversample_foreground_percent,
+                                       sampling_probabilities=None, pad_sides=None, probabilistic_oversampling=True)
+            dl_val = nnUNetDataLoader3DMinorityClass(dataset_val,
+                                        self.batch_size,
+                                        self.configuration_manager.patch_size,
+                                        self.configuration_manager.patch_size,
+                                        self.label_manager,
+                                        oversample_foreground_percent=self.oversample_foreground_percent,
+                                        sampling_probabilities=None, pad_sides=None, probabilistic_oversampling=True)
+        return dl_tr, dl_val

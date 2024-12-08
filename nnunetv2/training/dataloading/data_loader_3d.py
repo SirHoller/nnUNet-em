@@ -98,6 +98,8 @@ def calculate_class_distribution(dataset):
     total_voxels = all_labels.numel()
     return {int(k): v.item() / total_voxels for k, v in zip(unique, counts)}
 
+
+    
 class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
     def __init__(self,
                  data: nnUNetDataset,
@@ -148,7 +150,6 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         Genera un lote de entrenamiento priorizando parches con la clase menos representada.
         """
         print(f"nnUNetDataLoader3DMinorityClass")
-        self.dynamic_oversampling = False
         selected_keys = self.get_indices()
         data_all = np.zeros(self.data_shape, dtype=np.float32)
         seg_all = np.zeros(self.seg_shape, dtype=np.int16)
@@ -164,9 +165,14 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
             # Decide si sobresamplear foreground basado en la clase menos representada
             force_fg = False
             if self.dynamic_oversampling and least_represented_class is not None:
-                case_class_locations = self.dataset[i]['class_locations']
-                if least_represented_class in case_class_locations:
+                print(f"Checking if case {i} contains least represented class...")
+                data_file = self.dataset[i]['data_file']
+                with np.load(data_file) as data:
+                    seg = torch.from_numpy(data['seg']).flatten()
+                if least_represented_class in seg:
                     force_fg = True
+                    print(f"Case {i} contains least represented class.")
+                          
 
             # Carga los datos y las etiquetas
             data, seg, properties = self._data.load_case(i)

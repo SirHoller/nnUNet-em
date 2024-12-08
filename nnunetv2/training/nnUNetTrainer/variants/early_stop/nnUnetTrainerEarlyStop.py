@@ -44,7 +44,7 @@ class EarlyStopping:
             if not self.cumulative_delta and new_score > self.best_score:
                 self.best_score = new_score
             self.counter += 1
-            self.logger.info(f"EarlyStopping: {self.counter} / {self.patience}")
+            print(f"EarlyStopping: {self.counter} / {self.patience}")
             return self.counter >= self.patience
         else:  # New best score
             self.best_score = new_score
@@ -127,7 +127,7 @@ def calculate_class_distribution(labels):
     return class_distribution
 
 
-class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainerEarlyStoppingWithOverSampling):
+class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainer_probabilisticOversampling, nnUNetTrainerEarlyStopping):
     """
     Entrenador de nnU-Net con early stopping y oversampling enfocado en la clase menos representada.
     """
@@ -137,6 +137,7 @@ class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainerEarlyStoppingWit
         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
 
     def get_plain_dataloaders(self, initial_patch_size: Tuple[int, ...], dim: int):
+        print(f"nnUNetTrainerCustomOversamplingEarlyStopping, get_plain_dataloaders")
         dataset_tr, dataset_val = self.get_tr_and_val_datasets()
 
         if dim == 2:

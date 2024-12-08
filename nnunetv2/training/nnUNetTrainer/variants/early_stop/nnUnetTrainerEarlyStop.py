@@ -144,6 +144,7 @@ class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainer_probabilisticOv
         
         
     def get_dataloaders(self):
+        self.print_to_log_file("nnUNetTrainerCustomOversamplingEarlyStopping, get_dataloaders")
         patch_size = self.configuration_manager.patch_size
         dim = len(patch_size)
 

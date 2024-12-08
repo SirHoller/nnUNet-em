@@ -5,12 +5,6 @@ from threadpoolctl import threadpool_limits
 from nnunetv2.training.dataloading.base_data_loader import nnUNetDataLoaderBase
 from nnunetv2.training.dataloading.nnunet_dataset import nnUNetDataset
 
-from typing import Union, Tuple
-
-from batchgenerators.dataloading.data_loader import DataLoader
-from batchgenerators.utilities.file_and_folder_operations import *
-from nnunetv2.utilities.label_handling.label_handling import LabelManager
-
 
 class nnUNetDataLoader3D(nnUNetDataLoaderBase):
     def generate_train_batch(self):
@@ -99,30 +93,9 @@ def calculate_class_distribution(dataset):
     return {int(k): v.item() / total_voxels for k, v in zip(unique, counts)}
 
 class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
-    def __init__(self,
-                 data: nnUNetDataset,
-                 batch_size: int,
-                 patch_size: Union[List[int], Tuple[int, ...], np.ndarray],
-                 final_patch_size: Union[List[int], Tuple[int, ...], np.ndarray],
-                 label_manager: LabelManager,
-                 oversample_foreground_percent: float = 0.0,
-                 sampling_probabilities: Union[List[int], Tuple[int, ...], np.ndarray] = None,
-                 pad_sides: Union[List[int], Tuple[int, ...], np.ndarray] = None,
-                 probabilistic_oversampling: bool = False,
-                 transforms=None):
-
-        # Llamamos al __init__ de la clase base con los argumentos recibidos
-        super().__init__(data=data,
-                         batch_size=batch_size,
-                         patch_size=patch_size,
-                         final_patch_size=final_patch_size,
-                         label_manager=label_manager,
-                         oversample_foreground_percent=oversample_foreground_percent,
-                         sampling_probabilities=sampling_probabilities,
-                         pad_sides=pad_sides,
-                         probabilistic_oversampling=probabilistic_oversampling,
-                         transforms=transforms)
-        self.dynamic_oversampling = True
+    def __init__(self, *args, dynamic_oversampling=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dynamic_oversampling = dynamic_oversampling
         self.class_distribution = None
         self.dataset = self._data.dataset
         if self.dynamic_oversampling:
@@ -147,12 +120,11 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         """
         Genera un lote de entrenamiento priorizando parches con la clase menos representada.
         """
-        print(f"nnUNetDataLoader3DMinorityClass")
-        self.dynamic_oversampling = False
         selected_keys = self.get_indices()
         data_all = np.zeros(self.data_shape, dtype=np.float32)
         seg_all = np.zeros(self.seg_shape, dtype=np.int16)
         case_properties = []
+        print(f"nnUNetDataLoader3DMinorityClass")
 
         # Encuentra la clase menos representada (si oversampling dinámico está activado)
         least_represented_class = None

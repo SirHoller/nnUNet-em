@@ -6,8 +6,7 @@ from os.path import join
 from typing import Optional, Dict, Tuple
 
 import torch
-from nnunetv2.training.dataloading.data_loader_2d import nnUNetDataLoader2D
-from nnunetv2.training.dataloading.data_loader_3d import MinorityClassOversampling_nnUNetDataLoader3D
+
 from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
 from nnunetv2.training.nnUNetTrainer.variants.sampling.nnUNetTrainer_probabilisticOversampling import (
     nnUNetTrainer_probabilisticOversampling,
@@ -85,69 +84,3 @@ class nnUNetTrainerEarlyStopping(nnUNetTrainer):
                 self.save_checkpoint(join(self.output_folder, "checkpoint_latest.pth"))
         self.on_train_end()
 
-
-class OversamplingTrainerMixin:
-    """Mixin for trainers with configurable oversampling."""
-
-    def __init__(self, oversample_foreground_percent: float, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.oversample_foreground_percent = oversample_foreground_percent
-        self.print_to_log_file("Oversample percent:", self.oversample_foreground_percent)
-
-
-class nnUNetTrainerHalfOversamplingEarlyStopping(OversamplingTrainerMixin, nnUNetTrainerEarlyStopping):
-    def __init__(self, *args, **kwargs):
-        super().__init__(oversample_foreground_percent=0.5, *args, **kwargs)
-
-
-class nnUNetTrainerFullOversamplingEarlyStopping(OversamplingTrainerMixin, nnUNetTrainerEarlyStopping):
-    def __init__(self, *args, **kwargs):
-        super().__init__(oversample_foreground_percent=1, *args, **kwargs)
-
-
-class nnUNetTrainerExtremeOversamplingEarlyStopping(nnUNetTrainerFullOversamplingEarlyStopping):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.print_to_log_file("Using minority class oversampling.")
-
-    def get_plain_dataloaders(self, initial_patch_size: Tuple[int, ...], dim: int):
-        dataset_tr, dataset_val = self.get_tr_and_val_datasets()
-        dataloader_cls = nnUNetDataLoader2D if dim == 2 else MinorityClassOversampling_nnUNetDataLoader3D
-        dl_tr = dataloader_cls(dataset_tr, self.batch_size, initial_patch_size,
-                               self.configuration_manager.patch_size, self.label_manager,
-                               oversample_foreground_percent=self.oversample_foreground_percent)
-        dl_val = dataloader_cls(dataset_val, self.batch_size, self.configuration_manager.patch_size,
-                                self.configuration_manager.patch_size, self.label_manager,
-                                oversample_foreground_percent=self.oversample_foreground_percent)
-        return dl_tr, dl_val
-
-
-class LearningRateDecayMixin:
-    """Mixin for configuring learning rate and weight decay."""
-
-    def __init__(self, initial_lr: float, weight_decay: float = 0.0, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.initial_lr = initial_lr
-        self.weight_decay = weight_decay
-        self.print_to_log_file("Initial lr:", self.initial_lr)
-        self.print_to_log_file("Weight decay:", self.weight_decay)
-
-
-class nnUNetTrainerExtremeOversamplingEarlyStoppingLowLR(LearningRateDecayMixin, nnUNetTrainerExtremeOversamplingEarlyStopping):
-    def __init__(self, *args, **kwargs):
-        super().__init__(initial_lr=1e-3, *args, **kwargs)
-
-
-class nnUNetTrainerExtremeOversamplingEarlyStoppingVeryLowLR(LearningRateDecayMixin, nnUNetTrainerExtremeOversamplingEarlyStopping):
-    def __init__(self, *args, **kwargs):
-        super().__init__(initial_lr=5e-4, *args, **kwargs)
-
-
-class nnUNetTrainerExtremeOversamplingEarlyStoppingVeryLowLRVeryHighDecay(LearningRateDecayMixin, nnUNetTrainerExtremeOversamplingEarlyStopping):
-    def __init__(self, *args, **kwargs):
-        super().__init__(initial_lr=5e-4, weight_decay=5e-4, *args, **kwargs)
-
-
-class nnUNetTrainerExtremeOversamplingEarlyStoppingLowLRHigherDecay(LearningRateDecayMixin, nnUNetTrainerExtremeOversamplingEarlyStopping):
-    def __init__(self, *args, **kwargs):
-        super().__init__(initial_lr=1e-3, weight_decay=1e-4, *args, **kwargs)

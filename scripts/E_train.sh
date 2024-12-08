@@ -10,11 +10,11 @@ nnUNetv2_plan_and_preprocess -d 100 --verify_dataset_integrity
 dataset=100
 conf=3d_fullres
 trainer=nnUNetTrainerWithEarlyStopping
-nnUNetv2_train $dataset $conf 0 -device mps -tr $trainer --npz
-nnUNetv2_train $dataset $conf 1 -device mps -tr $trainer --npz
-nnUNetv2_train $dataset $conf 2 -device mps -tr $trainer --npz
-nnUNetv2_train $dataset $conf 3 -device mps -tr $trainer --npz
-nnUNetv2_train $dataset $conf 4 -device mps -tr $trainer --npz
+nnUNetv2_train $dataset $conf 0 -device cuda -tr $trainer --npz
+nnUNetv2_train $dataset $conf 1 -device cuda -tr $trainer --npz
+nnUNetv2_train $dataset $conf 2 -device cuda -tr $trainer --npz
+nnUNetv2_train $dataset $conf 3 -device cuda -tr $trainer --npz
+nnUNetv2_train $dataset $conf 4 -device cuda -tr $trainer --npz
 
 # Find best configuration:
 nnUNetv2_find_best_configuration $dataset -c $conf -tr $trainer

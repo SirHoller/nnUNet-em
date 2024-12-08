@@ -66,6 +66,9 @@ class NNUNetConfig:
         os.environ['nnUNet_preprocessed'] = str(self.PREPROCESSED_DATA_PATH)
         os.environ['nnUNet_results'] = str(self.RESULTS_PATH)
         print(f"Environment variables set: nnUNet_raw, nnUNet_preprocessed, nnUNet_results")
+        print(str(self.RAW_DATA_PATH))
+        print(str(self.PREPROCESSED_DATA_PATH))
+        print(str(self.RESULTS_PATH))
 
 
 class DatasetType(str, Enum):

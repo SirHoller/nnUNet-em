@@ -1,0 +1,478 @@
+{
+    "foreground_mean": {
+        "Dice": 0.5374493370563668,
+        "FN": 2390.6176470588234,
+        "FP": 1106.2941176470588,
+        "IoU": 0.4315623211576146,
+        "TN": 7211437.647058823,
+        "TP": 6097.441176470588,
+        "n_pred": 7203.735294117647,
+        "n_ref": 8488.05882352941
+    },
+    "mean": {
+        "1": {
+            "Dice": 0.7346636050258111,
+            "FN": 4726.0,
+            "FP": 2163.8823529411766,
+            "IoU": 0.5867204487346838,
+            "TN": 7202126.647058823,
+            "TP": 12015.470588235294,
+            "n_pred": 14179.35294117647,
+            "n_ref": 16741.470588235294
+        },
+        "2": {
+            "Dice": 0.34023506908692247,
+            "FN": 55.23529411764706,
+            "FP": 48.705882352941174,
+            "IoU": 0.27640419358054547,
+            "TN": 7220748.647058823,
+            "TP": 179.41176470588235,
+            "n_pred": 228.11764705882354,
+            "n_ref": 234.64705882352942
+        }
+    },
+    "metric_per_case": [
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.8230339560407197,
+                    "FN": 15021,
+                    "FP": 3006,
+                    "IoU": 0.6992843678582749,
+                    "TN": 7161085,
+                    "TP": 41920,
+                    "n_pred": 44926,
+                    "n_ref": 56941
+                },
+                "2": {
+                    "Dice": 0.0,
+                    "FN": 0,
+                    "FP": 34,
+                    "IoU": 0.0,
+                    "TN": 7220998,
+                    "TP": 0,
+                    "n_pred": 34,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_012_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_012_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.797196035774716,
+                    "FN": 1873,
+                    "FP": 1483,
+                    "IoU": 0.6627813504823151,
+                    "TN": 7211080,
+                    "TP": 6596,
+                    "n_pred": 8079,
+                    "n_ref": 8469
+                },
+                "2": {
+                    "Dice": 0.0,
+                    "FN": 0,
+                    "FP": 14,
+                    "IoU": 0.0,
+                    "TN": 7221018,
+                    "TP": 0,
+                    "n_pred": 14,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_028_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_028_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.726028568984689,
+                    "FN": 2752,
+                    "FP": 451,
+                    "IoU": 0.5698939170135625,
+                    "TN": 7213585,
+                    "TP": 4244,
+                    "n_pred": 4695,
+                    "n_ref": 6996
+                },
+                "2": {
+                    "Dice": 0.0,
+                    "FN": 0,
+                    "FP": 7,
+                    "IoU": 0.0,
+                    "TN": 7221025,
+                    "TP": 0,
+                    "n_pred": 7,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_033_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_033_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.7653016519341288,
+                    "FN": 2671,
+                    "FP": 6436,
+                    "IoU": 0.6198288457524526,
+                    "TN": 7197077,
+                    "TP": 14848,
+                    "n_pred": 21284,
+                    "n_ref": 17519
+                },
+                "2": {
+                    "Dice": 0.7527060782681099,
+                    "FN": 167,
+                    "FP": 130,
+                    "IoU": 0.6034712950600801,
+                    "TN": 7220283,
+                    "TP": 452,
+                    "n_pred": 582,
+                    "n_ref": 619
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_037_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_037_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.651865749426725,
+                    "FN": 2403,
+                    "FP": 937,
+                    "IoU": 0.4835317767125406,
+                    "TN": 7214565,
+                    "TP": 3127,
+                    "n_pred": 4064,
+                    "n_ref": 5530
+                },
+                "2": {
+                    "Dice": 0.8018581382883687,
+                    "FN": 601,
+                    "FP": 508,
+                    "IoU": 0.6692514166418133,
+                    "TN": 7217679,
+                    "TP": 2244,
+                    "n_pred": 2752,
+                    "n_ref": 2845
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_046_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_046_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.7094972067039106,
+                    "FN": 2221,
+                    "FP": 3291,
+                    "IoU": 0.5497835497835498,
+                    "TN": 7208789,
+                    "TP": 6731,
+                    "n_pred": 10022,
+                    "n_ref": 8952
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_104_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_104_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.5876840696117804,
+                    "FN": 943,
+                    "FP": 289,
+                    "IoU": 0.4161137440758294,
+                    "TN": 7218922,
+                    "TP": 878,
+                    "n_pred": 1167,
+                    "n_ref": 1821
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_107_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_107_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.6775576300247667,
+                    "FN": 5806,
+                    "FP": 964,
+                    "IoU": 0.5123532377728157,
+                    "TN": 7207149,
+                    "TP": 7113,
+                    "n_pred": 8077,
+                    "n_ref": 12919
+                },
+                "2": {
+                    "Dice": 0.8803088803088803,
+                    "FN": 19,
+                    "FP": 74,
+                    "IoU": 0.7862068965517242,
+                    "TN": 7220597,
+                    "TP": 342,
+                    "n_pred": 416,
+                    "n_ref": 361
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\FIS_117_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\FIS_117_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.7943876891245313,
+                    "FN": 2054,
+                    "FP": 4306,
+                    "IoU": 0.6589080767993135,
+                    "TN": 7202386,
+                    "TP": 12286,
+                    "n_pred": 16592,
+                    "n_ref": 14340
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_08_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_08_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.7650056625141562,
+                    "FN": 1430,
+                    "FP": 1060,
+                    "IoU": 0.619440623567171,
+                    "TN": 7214489,
+                    "TP": 4053,
+                    "n_pred": 5113,
+                    "n_ref": 5483
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_121_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_121_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.804356682403125,
+                    "FN": 11917,
+                    "FP": 4411,
+                    "IoU": 0.6727396628785601,
+                    "TN": 7171139,
+                    "TP": 33565,
+                    "n_pred": 37976,
+                    "n_ref": 45482
+                },
+                "2": {
+                    "Dice": 0.05581395348837209,
+                    "FN": 152,
+                    "FP": 51,
+                    "IoU": 0.028708133971291867,
+                    "TN": 7220823,
+                    "TP": 6,
+                    "n_pred": 57,
+                    "n_ref": 158
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_22_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_22_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.6864297680980513,
+                    "FN": 15056,
+                    "FP": 2725,
+                    "IoU": 0.5225679993555836,
+                    "TN": 7183789,
+                    "TP": 19462,
+                    "n_pred": 22187,
+                    "n_ref": 34518
+                },
+                "2": {
+                    "Dice": 0.0,
+                    "FN": 0,
+                    "FP": 1,
+                    "IoU": 0.0,
+                    "TN": 7221031,
+                    "TP": 0,
+                    "n_pred": 1,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_37_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_37_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.7699396108253187,
+                    "FN": 3887,
+                    "FP": 1256,
+                    "IoU": 0.6259364317404902,
+                    "TN": 7207283,
+                    "TP": 8606,
+                    "n_pred": 9862,
+                    "n_ref": 12493
+                },
+                "2": {
+                    "Dice": 0.5714285714285714,
+                    "FN": 0,
+                    "FP": 9,
+                    "IoU": 0.4,
+                    "TN": 7221017,
+                    "TP": 6,
+                    "n_pred": 15,
+                    "n_ref": 6
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_41_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_41_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.6826983135540288,
+                    "FN": 1426,
+                    "FP": 606,
+                    "IoU": 0.5182550972024657,
+                    "TN": 7216814,
+                    "TP": 2186,
+                    "n_pred": 2792,
+                    "n_ref": 3612
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_60_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_60_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.8251399341732878,
+                    "FN": 6569,
+                    "FP": 1772,
+                    "IoU": 0.7023303950608473,
+                    "TN": 7193011,
+                    "TP": 19680,
+                    "n_pred": 21452,
+                    "n_ref": 26249
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_67_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_67_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.8493766898762951,
+                    "FN": 3019,
+                    "FP": 3276,
+                    "IoU": 0.738188321410747,
+                    "TN": 7196988,
+                    "TP": 17749,
+                    "n_pred": 21025,
+                    "n_ref": 20768
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_95_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_95_01.nii.gz"
+        },
+        {
+            "metrics": {
+                "1": {
+                    "Dice": 0.5737820663685573,
+                    "FN": 1294,
+                    "FP": 517,
+                    "IoU": 0.4023102310231023,
+                    "TN": 7218002,
+                    "TP": 1219,
+                    "n_pred": 1736,
+                    "n_ref": 2513
+                },
+                "2": {
+                    "Dice": NaN,
+                    "FN": 0,
+                    "FP": 0,
+                    "IoU": NaN,
+                    "TN": 7221032,
+                    "TP": 0,
+                    "n_pred": 0,
+                    "n_ref": 0
+                }
+            },
+            "prediction_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_results\\Dataset100_NewLesions\\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres\\fold_7\\validation\\REHEM_97_01.nii.gz",
+            "reference_file": "C:\\Users\\mrtwe\\TFM\\nnUNet-em\\nnUNet_preprocessed_data\\Dataset100_NewLesions\\gt_segmentations\\REHEM_97_01.nii.gz"
+        }
+    ]
+}

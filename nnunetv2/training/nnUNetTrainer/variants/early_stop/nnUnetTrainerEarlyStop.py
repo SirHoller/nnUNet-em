@@ -140,7 +140,8 @@ class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainer_probabilisticOv
     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
                  unpack_dataset: bool = True, device: torch.device = torch.device('cuda')):
         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
-        
+        self.oversample_foreground_percent = 1.0
+        self.print_to_log_file(f"self.oversample_foreground_percent {self.oversample_foreground_percent}")
         
         
     def get_dataloaders(self):

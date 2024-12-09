@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import logging
 from threadpoolctl import threadpool_limits
 
 from nnunetv2.training.dataloading.base_data_loader import nnUNetDataLoaderBase
@@ -10,7 +11,7 @@ from typing import Union, Tuple
 from batchgenerators.dataloading.data_loader import DataLoader
 from batchgenerators.utilities.file_and_folder_operations import *
 from nnunetv2.utilities.label_handling.label_handling import LabelManager
-
+logging.basicConfig(level=logging.INFO)
 
 class nnUNetDataLoader3D(nnUNetDataLoaderBase):
     def generate_train_batch(self):
@@ -145,11 +146,22 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
             raise ValueError("Class distribution has not been calculated.")
         return min(self.class_distribution, key=self.class_distribution.get)
 
+    def checking_least_represented_class(self, i):
+        """
+        Comprueba si el caso contiene la clase menos representada.
+        """
+        data_file = self.dataset[i]['data_file']
+        with np.load(data_file) as data:
+            seg = torch.from_numpy(data['seg']).flatten()
+        least_represented_class = self.get_least_represented_class()
+        return least_represented_class in seg
+    
+    
     def generate_train_batch(self):
         """
         Genera un lote de entrenamiento priorizando parches con la clase menos representada.
         """
-        print(f"nnUNetDataLoader3DMinorityClass")
+        logging.info("nnUNetDataLoader3DMinorityClass")
         selected_keys = self.get_indices()
         data_all = np.zeros(self.data_shape, dtype=np.float32)
         seg_all = np.zeros(self.seg_shape, dtype=np.int16)
@@ -165,14 +177,7 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
             # Decide si sobresamplear foreground basado en la clase menos representada
             force_fg = False
             if self.dynamic_oversampling and least_represented_class is not None:
-                print(f"Checking if case {i} contains least represented class...")
-                data_file = self.dataset[i]['data_file']
-                with np.load(data_file) as data:
-                    seg = torch.from_numpy(data['seg']).flatten()
-                if least_represented_class in seg:
-                    force_fg = True
-                    print(f"Case {i} contains least represented class.")
-                          
+                force_fg = self.checking_least_represented_class(i)
 
             # Carga los datos y las etiquetas
             data, seg, properties = self._data.load_case(i)
@@ -181,7 +186,7 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
             # Calcula las coordenadas del parche
             shape = data.shape[1:]
             dim = len(shape)
-            bbox_lbs, bbox_ubs = self.get_bbox(shape, force_fg, properties['class_locations'])
+            bbox_lbs, bbox_ubs = self.get_bbox(shape, force_fg, properties['class_locations'], least_represented_class)
 
             # Ajusta los límites del parche dentro del rango válido
             valid_bbox_lbs = np.clip(bbox_lbs, a_min=0, a_max=None)

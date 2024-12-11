@@ -20,7 +20,7 @@ class nnUNetDataLoader3D(nnUNetDataLoaderBase):
         data_all = np.zeros(self.data_shape, dtype=np.float32)
         seg_all = np.zeros(self.seg_shape, dtype=np.int16)
         case_properties = []
-        print(f"nnUNetDataLoader3D")
+        # print(f"nnUNetDataLoader3D")
 
         for j, i in enumerate(selected_keys):
             # oversampling foreground will improve stability of model training, especially if many patches are empty
@@ -136,7 +136,7 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         Calcula la distribución de clases en el conjunto de entrenamiento.
         """
         self.class_distribution = calculate_class_distribution(self.dataset)
-        print(f"Class distribution: {self.class_distribution}")
+        # print(f"Class distribution: {self.class_distribution}")
 
     def get_least_represented_class(self):
         """
@@ -157,57 +157,57 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         return least_represented_class in seg
     
     
-    def get_indices(self):
-        """
-        Obtiene índices para el siguiente lote, priorizando ejemplos con clases menos representadas si es necesario.
-        """
-        if self.infinite:
-            # Selección con oversampling dinámico si las probabilidades están definidas
-            if self.sampling_probabilities is not None:
-                return np.random.choice(self.indices, self.batch_size, replace=True, p=self.sampling_probabilities)
-            else:
-                return np.random.choice(self.indices, self.batch_size, replace=True)
+    # def get_indices(self):
+    #     """
+    #     Obtiene índices para el siguiente lote, priorizando ejemplos con clases menos representadas si es necesario.
+    #     """
+    #     if self.infinite:
+    #         # Selección con oversampling dinámico si las probabilidades están definidas
+    #         if self.sampling_probabilities is not None:
+    #             return np.random.choice(self.indices, self.batch_size, replace=True, p=self.sampling_probabilities)
+    #         else:
+    #             return np.random.choice(self.indices, self.batch_size, replace=True)
 
-        if self.last_reached:
-            self.reset()
-            raise StopIteration
+    #     if self.last_reached:
+    #         self.reset()
+    #         raise StopIteration
 
-        if not self.was_initialized:
-            self.reset()
+    #     if not self.was_initialized:
+    #         self.reset()
 
-        indices = []
+    #     indices = []
 
-        # Dinámico: Priorizamos ejemplos con clases menos representadas
-        if hasattr(self, 'dynamic_oversampling') and self.dynamic_oversampling:
-            least_represented_class = self.get_least_represented_class()
-            # Filtramos índices que contienen la clase menos representada
-            priority_indices = [idx for idx in self.indices if self.checking_least_represented_class(idx)]
-            if priority_indices:
-                # Selección proporcional para priorizar casos relevantes
-                priority_probabilities = [0.8 / len(priority_indices)] * len(priority_indices)
-                normal_probabilities = [0.2 / len(self.indices)] * len(self.indices)
-                combined_probabilities = [
-                    priority_probabilities[i] if i in priority_indices else normal_probabilities[i]
-                    for i in range(len(self.indices))
-                ]
-                indices = np.random.choice(self.indices, self.batch_size, replace=False, p=combined_probabilities)
-                return indices
+    #     # Dinámico: Priorizamos ejemplos con clases menos representadas
+    #     if hasattr(self, 'dynamic_oversampling') and self.dynamic_oversampling:
+    #         least_represented_class = self.get_least_represented_class()
+    #         # Filtramos índices que contienen la clase menos representada
+    #         priority_indices = [idx for idx in self.indices if self.checking_least_represented_class(idx)]
+    #         if priority_indices:
+    #             # Selección proporcional para priorizar casos relevantes
+    #             priority_probabilities = [0.8 / len(priority_indices)] * len(priority_indices)
+    #             normal_probabilities = [0.2 / len(self.indices)] * len(self.indices)
+    #             combined_probabilities = [
+    #                 priority_probabilities[i] if i in priority_indices else normal_probabilities[i]
+    #                 for i in range(len(self.indices))
+    #             ]
+    #             indices = np.random.choice(self.indices, self.batch_size, replace=False, p=combined_probabilities)
+    #             return indices
 
-        # Selección normal si no aplicamos oversampling dinámico
-        for b in range(self.batch_size):
-            if self.current_position < len(self.indices):
-                indices.append(self.indices[self.current_position])
-                self.current_position += 1
-            else:
-                self.last_reached = True
-                break
+    #     # Selección normal si no aplicamos oversampling dinámico
+    #     for b in range(self.batch_size):
+    #         if self.current_position < len(self.indices):
+    #             indices.append(self.indices[self.current_position])
+    #             self.current_position += 1
+    #         else:
+    #             self.last_reached = True
+    #             break
 
-        if len(indices) > 0 and ((not self.last_reached) or self.return_incomplete):
-            self.current_position += (self.number_of_threads_in_multithreaded - 1) * self.batch_size
-            return indices
-        else:
-            self.reset()
-            raise StopIteration
+    #     if len(indices) > 0 and ((not self.last_reached) or self.return_incomplete):
+    #         self.current_position += (self.number_of_threads_in_multithreaded - 1) * self.batch_size
+    #         return indices
+    #     else:
+    #         self.reset()
+    #         raise StopIteration
 
     
     
@@ -215,7 +215,7 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         """
         Genera un lote de entrenamiento priorizando parches con la clase menos representada.
         """
-        logging.info("nnUNetDataLoader3DMinorityClass")
+        # logging.info("nnUNetDataLoader3DMinorityClass")
         selected_keys = self.get_indices()
         data_all = np.zeros(self.data_shape, dtype=np.float32)
         seg_all = np.zeros(self.seg_shape, dtype=np.int16)
@@ -226,7 +226,7 @@ class nnUNetDataLoader3DMinorityClass(nnUNetDataLoaderBase):
         if self.dynamic_oversampling:
             least_represented_class = self.get_least_represented_class()
 
-        print(f"Least represented class: {least_represented_class}")
+        # print(f"Least represented class: {least_represented_class}")
         for j, i in enumerate(selected_keys):
             # Decide si sobresamplear foreground basado en la clase menos representada
             force_fg = False
@@ -286,11 +286,11 @@ if __name__ == '__main__':
     # Selecciona el DataLoader
     use_dynamic = True  # Cambia a False para usar el estándar
     if use_dynamic:
-        print("Using nnUNetDataLoader3DMinorityClass:")
+        # print("Using nnUNetDataLoader3DMinorityClass:")
         dl = nnUNetDataLoader3DMinorityClass(ds, 5, (16, 16, 16), (16, 16, 16), dynamic_oversampling=True)
     else:
-        print("Using nnUNetDataLoader3D:")
+        # print("Using nnUNetDataLoader3D:")
         dl = nnUNetDataLoader3D(ds, 5, (16, 16, 16), (16, 16, 16), 0.33, None, None)
 
     batch = next(dl)
-    print("Batch generated successfully.")
+    # print("Batch generated successfully.")

@@ -33,7 +33,7 @@ from nnunetv2.training.loss.dice import get_tp_fp_fn_tn, MemoryEfficientSoftDice
 class EarlyStopping:
     """EarlyStopping handler to stop training if no improvement after a given number of events."""
 
-    def __init__(self, patience: int, logger, min_delta: float = 0.0, cumulative_delta: bool = False):
+    def __init__(self, patience: int, logger, min_delta: float = 0.0, cumulative_delta: bool = True):
         if patience < 1:
             raise ValueError("Argument patience should be a positive integer.")
         if min_delta < 0.0:
@@ -77,7 +77,7 @@ class nnUNetTrainerEarlyStopping(nnUNetTrainer):
                  unpack_dataset: bool = True, device: torch.device = torch.device('cuda')):
         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
         self.early_stopping = EarlyStopping(
-            patience=100, logger=self.logger, min_delta=0, cumulative_delta=False
+            patience=100, logger=self.logger, min_delta=0.01, cumulative_delta=False
         )
         self.print_to_log_file("Using early stopping with patience:", self.early_stopping.patience)
 
@@ -156,48 +156,61 @@ class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainer_probabilisticOv
         self.print_to_log_file(f"self.oversample_foreground_percent {self.oversample_foreground_percent}")
         
         
-    def _build_loss(self):
-        if self.label_manager.has_regions:
-            loss = DC_and_BCE_loss({},
-                                   {'batch_dice': self.configuration_manager.batch_dice,
-                                    'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp},
-                                   use_ignore_label=self.label_manager.ignore_label is not None,
-                                   dice_class=MemoryEfficientSoftDiceLoss)
-        else:
-            class_counts = [100, 50, 5]  # Ejemplo de frecuencias de clases
-            class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float32)
-            class_weights = class_weights / class_weights.sum()  # Normaliza
-            loss = DC_and_CE_loss({'batch_dice': self.configuration_manager.batch_dice,
-                       'smooth': 1e-5, 'do_bg': False, 'ddp': self.is_ddp}, 
-                      {}, 
-                      weight_ce=class_weights,  # Agregar pesos aquí
-                      weight_dice=1,
-                      ignore_label=self.label_manager.ignore_label,
-                      dice_class=MemoryEfficientSoftDiceLoss)
+    # def _build_loss(self):
+    #     if self.label_manager.has_regions:
+    #         loss = DC_and_BCE_loss(
+    #             {},
+    #             {
+    #                 'batch_dice': self.configuration_manager.batch_dice,
+    #                 'do_bg': True,
+    #                 'smooth': 1e-5,
+    #                 'ddp': self.is_ddp,
+    #             },
+    #             use_ignore_label=self.label_manager.ignore_label is not None,
+    #             dice_class=MemoryEfficientSoftDiceLoss,
+    #         )
+    #     else:
+    #         class_counts = [100, 50, 5]  # Ejemplo de frecuencias de clases
+    #         class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float32)
+    #         class_weights = class_weights / class_weights.sum()  # Normaliza
+    
+    #         # Verifica la forma de class_weights
+    #         assert class_weights.dim() == 1, "class_weights debe ser un tensor unidimensional"
+            
+    #         # Si la función requiere listas en lugar de tensores
+    #         class_weights = class_weights.cpu().numpy().tolist()
+    
+    #         loss = DC_and_CE_loss(
+    #             {
+    #                 'batch_dice': self.configuration_manager.batch_dice,
+    #                 'smooth': 1e-5,
+    #                 'do_bg': False,
+    #                 'ddp': self.is_ddp,
+    #             },
+    #             {},
+    #             weight_ce=class_weights,  # Pesos de clases ajustados
+    #             weight_dice=1,
+    #             ignore_label=self.label_manager.ignore_label,
+    #             dice_class=MemoryEfficientSoftDiceLoss,
+    #         )
+    
+    #     if self._do_i_compile():
+    #         loss.dc = torch.compile(loss.dc)
+    
+    #     if self.enable_deep_supervision:
+    #         deep_supervision_scales = self._get_deep_supervision_scales()
+    #         weights = np.array([1 / (2 ** i) for i in range(len(deep_supervision_scales))])
+    
+    #         if self.is_ddp and not self._do_i_compile():
+    #             weights[-1] = 1e-6
+    #         else:
+    #             weights[-1] = 0
+    
+    #         weights = weights / weights.sum()
+    #         loss = DeepSupervisionWrapper(loss, weights)
+    
+    #     return loss
 
-        if self._do_i_compile():
-            loss.dc = torch.compile(loss.dc)
-
-        # we give each output a weight which decreases exponentially (division by 2) as the resolution decreases
-        # this gives higher resolution outputs more weight in the loss
-
-        if self.enable_deep_supervision:
-            deep_supervision_scales = self._get_deep_supervision_scales()
-            weights = np.array([1 / (2 ** i) for i in range(len(deep_supervision_scales))])
-            if self.is_ddp and not self._do_i_compile():
-                # very strange and stupid interaction. DDP crashes and complains about unused parameters due to
-                # weights[-1] = 0. Interestingly this crash doesn't happen with torch.compile enabled. Strange stuff.
-                # Anywho, the simple fix is to set a very low weight to this.
-                weights[-1] = 1e-6
-            else:
-                weights[-1] = 0
-
-            # we don't use the lowest 2 outputs. Normalize weights so that they sum to 1
-            weights = weights / weights.sum()
-            # now wrap the loss
-            loss = DeepSupervisionWrapper(loss, weights)
-
-        return loss
         
     def get_dataloaders(self):
         self.print_to_log_file("nnUNetTrainerCustomOversamplingEarlyStopping, get_dataloaders")

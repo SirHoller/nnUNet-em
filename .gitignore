@@ -115,3 +115,5 @@ ENV/
 *.model
 
 !documentation/assets/scribble_example.png
+!requirements.txt
+!progress.png

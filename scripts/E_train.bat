@@ -12,11 +12,11 @@ set dataset=100
 set conf=3d_fullres
 set trainer=nnUNetTrainerCustomOversamplingEarlyStopping
 
-@REM nnUNetv2_train %dataset% %conf% 0 -device cuda -tr %trainer% --npz --val_best=1
-@REM nnUNetv2_train %dataset% %conf% 1 -device cuda -tr %trainer% --npz --val_best=1
-@REM nnUNetv2_train %dataset% %conf% 2 -device cuda -tr %trainer% --npz --val_best=1
-@REM nnUNetv2_train %dataset% %conf% 3 -device cuda -tr %trainer% --npz --val_best=1
-@REM nnUNetv2_train %dataset% %conf% 4 -device cuda -tr %trainer% --npz
+@REM nnUNetv2_train %dataset% %conf% 0 -device cuda -tr %trainer% --npz --val_best
+@REM nnUNetv2_train %dataset% %conf% 1 -device cuda -tr %trainer% --npz --val_best
+@REM nnUNetv2_train %dataset% %conf% 2 -device cuda -tr %trainer% --npz --val_best
+@REM nnUNetv2_train %dataset% %conf% 3 -device cuda -tr %trainer% --npz --val_best
+@REM nnUNetv2_train %dataset% %conf% 4 -device cuda -tr %trainer% --npz --val_best
 
 @REM REM Find best configuration:
 @REM nnUNetv2_find_best_configuration %dataset% -c %conf% -tr %trainer%

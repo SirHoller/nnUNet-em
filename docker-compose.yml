@@ -1,0 +1,19 @@
+services:
+  nnunetv2:
+    container_name: nnunetv2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./input:/nnUNet-em/input
+      - ./output:/nnUNet-em/output
+    environment:
+      - model_folder='\nnUNet_results\Dataset100_NewLesions\nnUNetTrainerCustomOversamplingEarlyStopping__nnUNetPlans__3d_fullres'
+    command: ["/bin/bash", './predict.sh']
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              count: 1

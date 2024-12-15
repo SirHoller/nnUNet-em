@@ -112,6 +112,8 @@ ENV/
 *.jpeg
 *.pth
 
+*.rar
+
 *.model
 
 !documentation/assets/scribble_example.png

@@ -1,8 +1,5 @@
 """
-Module for nnU-Net configuration variables and paths:
-    1. Defines paths for nnU-Net and sets them as environment variables.
-    2. Centralizes dataset-specific configurations and fixed variables.
-    3. Provides structured access to train, test.
+Modulo para configurar las rutas y variables de entorno de nnU-Net.
 """
 
 import os

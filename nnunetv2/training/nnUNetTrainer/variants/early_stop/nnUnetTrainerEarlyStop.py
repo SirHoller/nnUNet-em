@@ -24,7 +24,7 @@ from nnunetv2.training.loss.deep_supervision import DeepSupervisionWrapper
 from batchgenerators.dataloading.nondet_multi_threaded_augmenter import NonDetMultiThreadedAugmenter
 from batchgenerators.dataloading.single_threaded_augmenter import SingleThreadedAugmenter
 from nnunetv2.utilities.default_n_proc_DA import get_allowed_n_proc_DA
-from nnunetv2.training.loss.compound_losses import DC_and_CE_loss, DC_and_BCE_loss
+from nnunetv2.training.loss.compound_losses import DC_and_CE_loss, DC_and_BCE_loss, CustomWeightedLoss
 from nnunetv2.training.loss.dice import get_tp_fp_fn_tn, MemoryEfficientSoftDiceLoss
 
 
@@ -156,60 +156,58 @@ class nnUNetTrainerCustomOversamplingEarlyStopping(nnUNetTrainer_probabilisticOv
         self.print_to_log_file(f"self.oversample_foreground_percent {self.oversample_foreground_percent}")
         
         
-    # def _build_loss(self):
-    #     if self.label_manager.has_regions:
-    #         loss = DC_and_BCE_loss(
-    #             {},
-    #             {
-    #                 'batch_dice': self.configuration_manager.batch_dice,
-    #                 'do_bg': True,
-    #                 'smooth': 1e-5,
-    #                 'ddp': self.is_ddp,
-    #             },
-    #             use_ignore_label=self.label_manager.ignore_label is not None,
-    #             dice_class=MemoryEfficientSoftDiceLoss,
-    #         )
-    #     else:
-    #         class_counts = [100, 50, 5]  # Ejemplo de frecuencias de clases
-    #         class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float32)
-    #         class_weights = class_weights / class_weights.sum()  # Normaliza
-    
-    #         # Verifica la forma de class_weights
-    #         assert class_weights.dim() == 1, "class_weights debe ser un tensor unidimensional"
-            
-    #         # Si la función requiere listas en lugar de tensores
-    #         class_weights = class_weights.cpu().numpy().tolist()
-    
-    #         loss = DC_and_CE_loss(
-    #             {
-    #                 'batch_dice': self.configuration_manager.batch_dice,
-    #                 'smooth': 1e-5,
-    #                 'do_bg': False,
-    #                 'ddp': self.is_ddp,
-    #             },
-    #             {},
-    #             weight_ce=class_weights,  # Pesos de clases ajustados
-    #             weight_dice=1,
-    #             ignore_label=self.label_manager.ignore_label,
-    #             dice_class=MemoryEfficientSoftDiceLoss,
-    #         )
-    
-    #     if self._do_i_compile():
-    #         loss.dc = torch.compile(loss.dc)
-    
-    #     if self.enable_deep_supervision:
-    #         deep_supervision_scales = self._get_deep_supervision_scales()
-    #         weights = np.array([1 / (2 ** i) for i in range(len(deep_supervision_scales))])
-    
-    #         if self.is_ddp and not self._do_i_compile():
-    #             weights[-1] = 1e-6
-    #         else:
-    #             weights[-1] = 0
-    
-    #         weights = weights / weights.sum()
-    #         loss = DeepSupervisionWrapper(loss, weights)
-    
-    #     return loss
+    def _build_loss(self):
+        if self.label_manager.has_regions:
+            # Si hay regiones, puedes mantener la lógica actual con DC_and_BCE_loss
+            loss = DC_and_BCE_loss(
+                {},
+                {
+                    'batch_dice': self.configuration_manager.batch_dice,
+                    'do_bg': True,
+                    'smooth': 1e-5,
+                    'ddp': self.is_ddp,
+                },
+                use_ignore_label=self.label_manager.ignore_label is not None,
+                dice_class=MemoryEfficientSoftDiceLoss,
+            )
+        else:
+            # Calcula los pesos de las clases a partir de las frecuencias
+            class_counts = [100, 50, 5]  # Ejemplo de frecuencias de clases
+            class_counts = [max(c, 1) for c in class_counts]  # Evitar divisiones por cero
+            class_weights = 1.0 / torch.tensor(class_counts, dtype=torch.float32)
+            class_weights = class_weights / class_weights.sum()  # Normaliza
+
+            assert class_weights.dim() == 1, "class_weights debe ser un tensor unidimensional"
+            class_weights = class_weights.cpu().numpy().tolist()  # Convertir a lista si es necesario
+
+            # Crea una instancia de la nueva clase de pérdida
+            loss = CustomWeightedLoss(
+                class_weights=class_weights,
+                weight_ce=1.0,  # Peso global para Cross Entropy Loss
+                weight_dice=1.0,  # Peso global para Dice Loss
+                ignore_label=self.label_manager.ignore_label
+            )
+
+        if self._do_i_compile() and hasattr(loss, 'dice_loss'):
+            # Aplica compilación a Dice Loss si es compatible
+            loss.dice_loss = torch.compile(loss.dice_loss)
+
+        if self.enable_deep_supervision:
+            # Configura Deep Supervision
+            deep_supervision_scales = self._get_deep_supervision_scales()
+            weights = np.array([1 / (2 ** i) for i in range(len(deep_supervision_scales))])
+
+            if self.is_ddp and not self._do_i_compile():
+                weights[-1] = 1e-6
+            else:
+                weights[-1] = 0
+
+            weights = weights / weights.sum()
+            loss = DeepSupervisionWrapper(loss, weights)
+
+        return loss
+
+
 
         
     def get_dataloaders(self):

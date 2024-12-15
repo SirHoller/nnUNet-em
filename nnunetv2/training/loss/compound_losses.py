@@ -3,6 +3,7 @@ from nnunetv2.training.loss.dice import SoftDiceLoss, MemoryEfficientSoftDiceLos
 from nnunetv2.training.loss.robust_ce_loss import RobustCrossEntropyLoss, TopKLoss
 from nnunetv2.utilities.helpers import softmax_helper_dim1
 from torch import nn
+import torch.nn.functional as F
 
 
 class DC_and_CE_loss(nn.Module):
@@ -154,3 +155,68 @@ class DC_and_topk_loss(nn.Module):
 
         result = self.weight_ce * ce_loss + self.weight_dice * dc_loss
         return result
+
+class CustomWeightedLoss(nn.Module):
+    def __init__(self, class_weights, weight_ce=1.0, weight_dice=1.0, ignore_label=None):
+        """
+        Combina Dice Loss y Cross Entropy Loss con soporte para pesos de clase.
+        
+        :param class_weights: Lista o tensor con los pesos para cada clase.
+        :param weight_ce: Peso global para la pérdida de Cross Entropy.
+        :param weight_dice: Peso global para la pérdida de Dice.
+        :param ignore_label: Etiqueta a ignorar en el cálculo de la pérdida.
+        """
+        super(CustomWeightedLoss, self).__init__()
+        self.class_weights = torch.tensor(class_weights, dtype=torch.float32)
+        self.weight_ce = weight_ce
+        self.weight_dice = weight_dice
+        self.ignore_label = ignore_label
+
+    def cross_entropy_loss(self, net_output, target):
+        """
+        Calcula la Cross Entropy Loss con pesos de clase.
+        """
+        if self.ignore_label is not None:
+            ce_loss = F.cross_entropy(
+                net_output,
+                target,
+                weight=self.class_weights.to(net_output.device),
+                ignore_index=self.ignore_label
+            )
+        else:
+            ce_loss = F.cross_entropy(
+                net_output,
+                target,
+                weight=self.class_weights.to(net_output.device)
+            )
+        return ce_loss
+
+    def dice_loss(self, net_output, target, epsilon=1e-5):
+        """
+        Calcula la Dice Loss por clase.
+        """
+        net_output = F.softmax(net_output, dim=1)
+
+        if target.dim() > 4:
+            target = target.squeeze(1)
+
+        target_one_hot = F.one_hot(target.long(), num_classes=net_output.shape[1]).permute(0, 4, *range(1, target.ndim)).float()
+
+        intersection = torch.sum(net_output * target_one_hot, dim=(2, 3, 4))
+        union = torch.sum(net_output + target_one_hot, dim=(2, 3, 4))
+
+        dice_score = (2.0 * intersection + epsilon) / (union + epsilon)
+        dice_loss = 1.0 - dice_score
+
+        weighted_dice_loss = (dice_loss * self.class_weights.to(net_output.device)).mean()
+        return weighted_dice_loss
+
+    def forward(self, net_output, target):
+        """
+        Combina Dice Loss y Cross Entropy Loss.
+        """
+        dice_loss = self.dice_loss(net_output, target)
+        ce_loss = self.cross_entropy_loss(net_output, target)
+
+        total_loss = self.weight_dice * dice_loss + self.weight_ce * ce_loss
+        return total_loss
